@@ -6,7 +6,7 @@ This repository holds the downloads: the module's firmware and the command-line 
 
 ## Downloads
 
-Everything is under [Releases](https://github.com/ericogr/vtx-guardian-hd-release/releases). Each release has a version and says what changed.
+Everything is under [Releases](https://github.com/ericogr/vtx-guardian-hd-release/releases)..
 
 | Release | Files |
 | :--- | :--- |
