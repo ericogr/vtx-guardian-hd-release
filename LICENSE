@@ -1,0 +1,18 @@
+VTX Guardian HD releases - proprietary license
+
+Copyright (c) 2026 EricoGR. All rights reserved.
+
+The files published in the releases of this repository (the firmware of the VTX Guardian HD module and the
+command-line program that updates and configures it) are published to update and configure VTX Guardian HD
+modules. They are proprietary and are not open source.
+
+No other license is granted. In particular, none is granted to copy, modify, merge, publish, redistribute,
+sublicense, sell, reverse engineer or make derivative works of them, in source or binary form, without the prior
+written permission of the copyright holder.
+
+Third-party components that the files include are not covered by this license. They stay under their own
+licenses, listed in THIRD_PARTY.md, and their notices must be kept with any copy of them.
+
+THE WORK IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT. IN NO EVENT SHALL THE COPYRIGHT HOLDER
+BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY ARISING FROM THE USE OF THE WORK.
