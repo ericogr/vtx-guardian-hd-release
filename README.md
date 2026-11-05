@@ -11,7 +11,7 @@ Everything is under [Releases](https://github.com/ericogr/vtx-guardian-hd-releas
 | Release | Files |
 | :--- | :--- |
 | `cli-v<version>` | `vtx-guardian-hd-cli-<platform>` (with `.exe` on Windows) and `SHA256SUMS`. Platforms: `linux-x86_64`, `linux-aarch64`, `macos-x86_64`, `macos-aarch64`, `windows-x86_64`, `windows-aarch64` |
-| `firmware-v<version>` | `firmware.zip`, with the update file `vtx-guardian-hd-<hardware revision>.vgfw` (today `vtx-guardian-hd-ch32v003j4m6.vgfw`) |
+| `firmware-v<version>` | `firmware.zip`, with the update file `vtx-guardian-hd-<hardware>.vgfw` (today `vtx-guardian-hd-hw000.vgfw`, for hardware 0.x) |
 
 Check a download against `SHA256SUMS` (`sha256sum -c SHA256SUMS --ignore-missing` on Linux). On Linux and macOS make the program executable with `chmod +x`. The examples below call it `vtx-guardian-hd-cli`: rename it, or put it in your `PATH`. The program is not code-signed, so Windows and macOS may ask you to confirm before running it.
 
@@ -26,7 +26,7 @@ In both cases the module must be powered from the battery, with the **VTX off** 
 
 ```bash
 vtx-guardian-hd-cli ports                              # the USB serial ports
-vtx-guardian-hd-cli info                               # what the module is: chip uid, versions, settings, battery
+vtx-guardian-hd-cli info                               # what the module is: chip uid, versions, hardware, settings, battery
 vtx-guardian-hd-cli update <firmware.vgfw>             # update the firmware
 vtx-guardian-hd-cli config list [--advanced]           # every setting: value, default and what it takes
 vtx-guardian-hd-cli config get <name>
@@ -52,17 +52,17 @@ All of them except `ports` take these options:
 
 The update keeps the settings.
 
-1. Download `firmware.zip` from the latest `firmware-v*` release and take out the `.vgfw` for your hardware revision. Give it to the CLI as it is: the CLI takes only `.vgfw` files.
+1. Download `firmware.zip` from the latest `firmware-v*` release and take out the `.vgfw` for your hardware (`vtx-guardian-hd-cli info` shows it in its `hardware:` line: `0.x` is `hw000`). Give it to the CLI as it is: the CLI takes only `.vgfw` files.
 2. Connect the flight controller to the computer by USB, connect the battery, take the propellers off, and make sure the **VTX is off**.
 3. Run:
 
    ```bash
-   vtx-guardian-hd-cli update vtx-guardian-hd-ch32v003j4m6.vgfw
+   vtx-guardian-hd-cli update vtx-guardian-hd-hw000.vgfw
    ```
 
    Add `-v` to see each step.
 
-The CLI finds the module (behind INAV it first checks that INAV is not armed and puts it in serial passthrough), checks that the file is for your hardware revision before anything is erased, restarts the module into its bootloader, writes and checks the new firmware, starts it and waits until it confirms. It then takes INAV out of passthrough, which restarts the flight controller: its USB port goes away for a few seconds and comes back, perhaps under another name. The last line shows the firmware before and after.
+The CLI finds the module (behind INAV it first checks that INAV is not armed and puts it in serial passthrough), checks that the file is for your hardware before anything is erased, restarts the module into its bootloader, writes and checks the new firmware, starts it and waits until it confirms. It then takes INAV out of passthrough, which restarts the flight controller: its USB port goes away for a few seconds and comes back, perhaps under another name. The last line shows the firmware before and after.
 
 If the update is cut short (the battery unplugged, for example), the module waits in its bootloader and does not start the old firmware: run the update again.
 
@@ -77,7 +77,7 @@ If the update is cut short (the battery unplugged, for example), the module wait
 | `INAV did not leave the serial passthrough` | Power-cycle the flight controller |
 | `the module did not restart into the bootloader` | The VTX is on. Switch it off with the button and run the update again |
 | `this is not a firmware file of the module (a .vgfw)` | You gave a plain `.bin`. Use the `.vgfw` of the release |
-| `the image carries the compatibility key ... another hardware revision` | The file is not for your hardware revision |
+| `the image carries the compatibility key ... another hardware revision` | The file is not for your hardware. The message names the hardware of the file and of the module; use the file of the module's |
 | A new setting does not seem to apply | Settings apply at the next power-up: unplug the battery and plug it in again |
 
 ## License
