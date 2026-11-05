@@ -52,7 +52,7 @@ All of them except `ports` take these options:
 
 The update keeps the settings.
 
-1. Download `firmware.zip` from the latest `firmware-v*` release and take out the `.vgfw` for your hardware (`vtx-guardian-hd-cli info` shows it in its `hardware:` line: `0.x` is `hw000`). Give it to the CLI as it is: the CLI takes only `.vgfw` files.
+1. Download `firmware.zip` from the latest `firmware-v*` release and take out the `.vgfw` for your hardware (`vtx-guardian-hd-cli info` shows it in its `hardware:` line, for example `0.x.x (hw000)`: take the file with that name). Give it to the CLI as it is: the CLI takes only `.vgfw` files.
 2. Connect the flight controller to the computer by USB, connect the battery, take the propellers off, and make sure the **VTX is off**.
 3. Run:
 
