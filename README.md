@@ -27,12 +27,15 @@ In both cases the module must be powered from the battery, with the **VTX off** 
 ```bash
 vtx-guardian-hd-cli ports                              # the USB serial ports
 vtx-guardian-hd-cli info                               # what the module is: chip uid, versions, hardware, settings, battery
-vtx-guardian-hd-cli update <firmware.vgfw>             # update the firmware
+vtx-guardian-hd-cli update [--force]                   # the latest published firmware, if the module has an older one
+vtx-guardian-hd-cli update <firmware.vgfw>             # this file, always
 vtx-guardian-hd-cli config list [--advanced]           # every setting: value, default and what it takes
 vtx-guardian-hd-cli config get <name>
 vtx-guardian-hd-cli config set <name>=<value>...       # for example: disarm-delay=10 cells=4 led-code=off
 vtx-guardian-hd-cli config reset <name>... | --all     # back to the defaults
 vtx-guardian-hd-cli config calibrate --voltage 16.8    # the module learns what your multimeter reads
+vtx-guardian-hd-cli config export [<file>] [--force]   # every setting to a text file (or printed)
+vtx-guardian-hd-cli config import <file> [--dry-run]   # set the module from such a file
 ```
 
 All of them except `ports` take these options:
@@ -48,12 +51,36 @@ All of them except `ports` take these options:
 
 **Settings** need the module running its firmware, with the VTX off. The new values are stored at once and **apply at the module's next power-up**: unplug the battery and plug it in again. A setting can be given by number or by its word (`never`, `off`, `on`, `auto`, `v1`, `v2`), and the program refuses a value the module would refuse before sending it. `config calibrate` needs the module powered from the battery being measured, with the multimeter on the battery leads.
 
+**Keep the settings in a file, or give them to another module.** `config export settings.cfg` writes every setting to a text file, one `name = value` per line, with what each takes and its default after the value; without a file name it prints them, and it refuses to overwrite a file unless you add `--force`. `config import settings.cfg` sets the module from such a file (`-` reads the standard input), and the file may name only some of the settings. The import reads and checks the whole file first, lists every problem with its line and sends nothing if there is one; it writes only what differs, and `--dry-run` says what would change and writes nothing. The file says which settings layout its values are of (`layout = 1.1`): a file of another layout major (the first number) is refused. `battery-cal` is the correction of that one module's own voltage reading, so delete its line from a file meant for other modules. As with `set`, the new values apply at the module's next power-up.
+
 ## Update the firmware
 
-The update keeps the settings.
+The update keeps the settings. Connect the flight controller to the computer by USB, connect the battery, take the propellers off, and make sure the **VTX is off**; then either let the CLI fetch the latest firmware or give it a file.
+
+### The latest firmware, from the internet
+
+```bash
+vtx-guardian-hd-cli update
+```
+
+The CLI looks up the newest `firmware-v*` release in this repository before it touches anything, so without a network nothing is done. Then it compares that version with the one the module has:
+
+| The module has | `update` | `update --force` |
+| :--- | :--- | :--- |
+| an older firmware, or none running (an update that was cut short) | installs the published one | installs it |
+| the same version | says it is up to date and changes nothing | installs it again |
+| a newer one (a build of your own) | says so and changes nothing | installs the published one anyway |
+
+To install, it downloads `firmware.zip` and takes from it the `.vgfw` of your hardware by itself, then goes on as with a file. Behind INAV it restarts the flight controller even when there is nothing to update, because it has to put it in serial passthrough to ask the module. `--force` is refused together with a file: a file is always installed.
+
+The firmware of the releases is enciphered with the project's key, so it installs on the modules that come from the project; a module with another key stops with the error "the module does not take this file" and keeps its bootloader.
+
+### A file
+
+For no internet, or a particular version.
 
 1. Download `firmware.zip` from the latest `firmware-v*` release and take out the `.vgfw` for your hardware (`vtx-guardian-hd-cli info` shows it in its `hardware:` line, for example `0.x.x (hw000)`: take the file with that name). Give it to the CLI as it is: the CLI takes only `.vgfw` files.
-2. Connect the flight controller to the computer by USB, connect the battery, take the propellers off, and make sure the **VTX is off**.
+2. Prepare the module and the flight controller as above.
 3. Run:
 
    ```bash
@@ -77,6 +104,9 @@ If the update is cut short (the battery unplugged, for example), the module wait
 | `INAV did not leave the serial passthrough` | Power-cycle the flight controller |
 | `the module did not restart into the bootloader` | The VTX is on. Switch it off with the button and run the update again |
 | `this is not a firmware file of the module (a .vgfw)` | You gave a plain `.bin`. Use the `.vgfw` of the release |
+| `GitHub refused the request ... (HTTP 403)` or `(HTTP 429)` | GitHub limits the requests from one address. Try again in a while, or download `firmware.zip` by hand and give the `.vgfw` to `update` |
+| `cannot get ...` or `GitHub answered ...` | No network, or GitHub did not answer. The message gives the page of the releases: download `firmware.zip` there and use `update <file>` |
+| `the release has no firmware for the hardware of this module` | The latest release does not carry your hardware; the message lists what it has. Use `update <file>` with the file you have for it |
 | `the image carries the compatibility key ... another hardware revision` | The file is not for your hardware. The message names the hardware of the file and of the module; use the file of the module's |
 | A new setting does not seem to apply | Settings apply at the next power-up: unplug the battery and plug it in again |
 
