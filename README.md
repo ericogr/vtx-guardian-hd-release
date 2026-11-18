@@ -2,18 +2,19 @@
 
 VTX Guardian HD is a small module that sits in line between an INAV flight controller and a digital HD VTX (Caddx Walksnail / Ascent). It switches the VTX supply on when the aircraft arms and off 5 s after it disarms; a button switches it by hand.
 
-This repository holds the downloads: the module's firmware and the command-line program (`vtx-guardian-hd-cli`) that updates the module and sets its behaviour. Both work through the UART the module already has: no programmer is needed.
+This repository holds the downloads: the module's firmware, the command-line program (`vtx-guardian-hd-cli`) and the window (`vtx-guardian-hd-gui`). The two programs do the same: they update the module and set its behaviour, through the UART the module already has, so no programmer is needed. They are separate downloads: take the one you prefer, or both.
 
 ## Downloads
 
-Everything is under [Releases](https://github.com/ericogr/vtx-guardian-hd-release/releases)..
+Everything is under [Releases](https://github.com/ericogr/vtx-guardian-hd-release/releases).
 
 | Release | Files |
 | :--- | :--- |
 | `cli-v<version>` | `vtx-guardian-hd-cli-<platform>` (with `.exe` on Windows) and `SHA256SUMS`. Platforms: `linux-x86_64`, `linux-aarch64`, `macos-x86_64`, `macos-aarch64`, `windows-x86_64`, `windows-aarch64` |
+| `gui-v<version>` | `vtx-guardian-hd-gui-<platform>` (with `.exe` on Windows) and `SHA256SUMS`. The same platforms as the CLI |
 | `firmware-v<version>` | `firmware.zip`, with the update file `vtx-guardian-hd-<hardware>.vgfw` (today `vtx-guardian-hd-hw000.vgfw`, for hardware 0.x) |
 
-Check a download against `SHA256SUMS` (`sha256sum -c SHA256SUMS --ignore-missing` on Linux). On Linux and macOS make the program executable with `chmod +x`. The examples below call it `vtx-guardian-hd-cli`: rename it, or put it in your `PATH`. The program is not code-signed, so Windows and macOS may ask you to confirm before running it.
+Check a download against `SHA256SUMS` (`sha256sum -c SHA256SUMS --ignore-missing` on Linux). On Linux and macOS make the program executable with `chmod +x`. The examples below call the command-line program `vtx-guardian-hd-cli`: rename it, or put it in your `PATH`. The programs are not code-signed, so Windows and macOS may ask you to confirm before running them.
 
 ## Connecting
 
@@ -52,6 +53,16 @@ All of them except `ports` take these options:
 **Settings** need the module running its firmware, with the VTX off. The new values are stored at once and **apply at the module's next power-up**: unplug the battery and plug it in again. A setting can be given by number or by its word (`never`, `off`, `on`, `auto`, `v1`, `v2`), and the program refuses a value the module would refuse before sending it. `config calibrate` needs the module powered from the battery being measured, with the multimeter on the battery leads.
 
 **Keep the settings in a file, or give them to another module.** `config export settings.cfg` writes every setting to a text file, one `name = value` per line, with what each takes and its default after the value; without a file name it prints them, and it refuses to overwrite a file unless you add `--force`. `config import settings.cfg` sets the module from such a file (`-` reads the standard input), and the file may name only some of the settings. The import reads and checks the whole file first, lists every problem with its line and sends nothing if there is one; it writes only what differs, and `--dry-run` says what would change and writes nothing. The file says which settings layout its values are of (`layout = 1.1`): a file of another layout major (the first number) is refused. `battery-cal` is the correction of that one module's own voltage reading, so delete its line from a file meant for other modules. As with `set`, the new values apply at the module's next power-up.
+
+## The window
+
+`vtx-guardian-hd-gui` shows the same things in a window, with the same rules as the CLI. Prepare the module and the flight controller as for the CLI (**Connecting**, above, and the start of **Update the firmware**), choose the serial port and press **Connect**; leave *INAV UART* empty unless INAV has several UARTs with the MSP-OSD function. **Disconnect** takes INAV out of passthrough, which restarts it. It has three tabs:
+
+- **Module:** what `info` prints, in cards.
+- **Settings:** every setting with what it takes and its default. Type a value or choose a word; nothing is written until you press **Apply**, which writes only what differs. **Reset all** (it asks first) puts every setting back to its default. As with the CLI, the new values apply at the module's next power-up.
+- **Firmware:** the version installed on the module beside the latest published one, with the button that installs it (**Reinstall** is `--force`), or a `.vgfw` file of your own.
+
+It needs no graphics card: it draws with the processor, so it opens in a virtual machine or a remote desktop. It uses the network only to ask GitHub for the list of releases, and for `firmware.zip` when you install the latest firmware. On Linux the file dialog comes from the desktop portal or `zenity`; without them, type the path in the field beside **Browse**.
 
 ## Update the firmware
 
